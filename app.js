@@ -1,8 +1,9 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzVIiQAjDcvvUqEXSqTK00yAn12IUkL0NvdRA3dMOsi1pzZwHCrL0lfad_d5Z3R3p1Yng/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzVIiQAjDcvvUqEXSqTK00yAn12IUkL0NvdRA3dMOsi1pzZwHCrL0lfad_d5Z3R3p1Yng/exec";const API_URL = "https://script.google.com/macros/s/AKfycbzVIiQAjDcvvUqEXSqTK00yAn12IUkL0NvdRA3dMOsi1pzZwHCrL0lfad_d5Z3R3p1Yng/exec";
 
 /* ===== API HELPER ===== */
 async function api(action, payload = {}) {
-   const res = await fetch(API_URL, {    method: "POST",
+  const res = await fetch(API_URL, {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, ...payload })
   });
@@ -11,21 +12,75 @@ async function api(action, payload = {}) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  let data = { income: [], expense: [] };
-  let categories = { incomeCategories: [], expenseCategories: [], thresholds: {} };
-  let topExpensesChart, paymentMethodChart, monthlyComboChart;
-
+  /* ===== ELEMENT DEFINITIONS ===== */
+  // Auth containers
   const authContainer = document.getElementById("authContainer");
-  const appContent = document.getElementById("appContent");
+  const loginBox = document.getElementById("loginBox");
+  const signupBox = document.getElementById("signupBox");
+  const forgotBox = document.getElementById("forgotBox");
+
+  // Inputs
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
+  const signupUsername = document.getElementById("signupUsername");
+  const signupEmail = document.getElementById("signupEmail");
+  const signupPassword = document.getElementById("signupPassword");
+  const forgotEmail = document.getElementById("forgotEmail");
+
+  // Buttons & links
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const signupBtn = document.getElementById("signupBtn");
+  const forgotBtn = document.getElementById("forgotBtn");
+  const showSignup = document.getElementById("showSignup");
+  const showForgot = document.getElementById("showForgot");
+  const backToLogin1 = document.getElementById("backToLogin1");
+  const backToLogin2 = document.getElementById("backToLogin2");
+
+  // Sidebar
   const sidebar = document.getElementById("sidebar");
   const navIcon = document.getElementById("navIcon");
   const closeSidebar = document.getElementById("closeSidebar");
+  const sidebarUsername = document.getElementById("sidebarUsername");
+
+  // App content
+  const appContent = document.getElementById("appContent");
+  const welcomeCard = document.getElementById("welcomeCard");
+  const themeSelect = document.getElementById("themeSelect");
+
+  // Modal
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalType = document.getElementById("modalType");
+  const editIndex = document.getElementById("editIndex");
+  const modalDate = document.getElementById("modalDate");
+  const modalName = document.getElementById("modalName");
+  const modalAmount = document.getElementById("modalAmount");
+  const modalPayment = document.getElementById("modalPayment");
+  const modalSubmit = document.getElementById("modalSubmit");
+  const modalCancel = document.getElementById("modalCancel");
+
+  // Income / Expense page elements
+  const addIncomeBtn = document.getElementById("addIncomeBtn");
+  const addExpenseBtn = document.getElementById("addExpenseBtn");
+  const incomeCategoriesEl = document.getElementById("incomeCategories");
+  const expenseCategoriesEl = document.getElementById("expenseCategories");
+  const addIncomeCategoryBtn = document.getElementById("addIncomeCategoryBtn");
+  const addExpenseCategoryBtn = document.getElementById("addExpenseCategoryBtn");
+  const newIncomeCategory = document.getElementById("newIncomeCategory");
+  const newExpenseCategory = document.getElementById("newExpenseCategory");
+  const newExpenseThreshold = document.getElementById("newExpenseThreshold");
+
   const rememberMe = document.getElementById("rememberMe");
 
-  const loginEmail = document.getElementById("loginEmail");
-  const loginPassword = document.getElementById("loginPassword");
-  const sidebarUsername = document.getElementById("sidebarUsername");
-  const welcomeCard = document.getElementById("welcomeCard");
+  // Dashboard elements
+  const totalIncome = document.getElementById("totalIncome");
+  const totalExpense = document.getElementById("totalExpense");
+  const balance = document.getElementById("balance");
+
+  /* ===== INITIAL DATA ===== */
+  let data = { income: [], expense: [] };
+  let categories = { incomeCategories: [], expenseCategories: [], thresholds: {} };
 
   /* ===== REMEMBER ME ===== */
   if (localStorage.getItem("rememberEmail")) {
@@ -34,18 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     rememberMe.checked = true;
   }
 
-  /* ===== AUTH ===== */
-  document.getElementById("signupBtn").onclick = async () => {
-    const username = signupUsername.value.trim();
-    const email = signupEmail.value.trim();
-    const password = signupPassword.value.trim();
-    if (!username || !email || !password) return alert("Fill all fields");
-
-    const res = await api("signup", { username, email, password });
-    alert(res.message);
-    if (res.success) show(loginBox);
-  };
-
+  /* ===== AUTH NAVIGATION ===== */
   function show(box) {
     loginBox.classList.add("hidden");
     signupBox.classList.add("hidden");
@@ -58,13 +102,25 @@ document.addEventListener("DOMContentLoaded", () => {
   backToLogin1.onclick = () => show(loginBox);
   backToLogin2.onclick = () => show(loginBox);
 
+  /* ===== SIGNUP ===== */
+  signupBtn.onclick = async () => {
+    const username = signupUsername.value.trim();
+    const email = signupEmail.value.trim();
+    const password = signupPassword.value.trim();
+    if (!username || !email || !password) return alert("Fill all fields");
+
+    const res = await api("signup", { username, email, password });
+    alert(res.message);
+    if (res.success) show(loginBox);
+  };
+
+  /* ===== LOGIN ===== */
   loginBtn.onclick = async () => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value.trim();
     if (!email || !password) return alert("Enter email & password");
 
     const res = await api("login", { email, password });
-
     if (res.loggedIn) {
       authContainer.style.display = "none";
       appContent.style.display = "block";
@@ -83,6 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
     } else alert(res.message || "Login failed");
   };
 
+  forgotBtn.onclick = async () => {
+    const email = forgotEmail.value.trim();
+    if (!email) return alert("Enter email");
+
+    const res = await api("forgotPassword", { email });
+    alert(res.message);
+  };
+
   logoutBtn.onclick = () => {
     appContent.style.display = "none";
     authContainer.style.display = "flex";
@@ -94,13 +158,10 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebar.classList.add("open");
     document.querySelector(".content").classList.add("open");
   };
-
   closeSidebar.onclick = () => {
     sidebar.classList.remove("open");
     document.querySelector(".content").classList.remove("open");
   };
-
-  /* ===== NAVIGATION ===== */
   document.querySelectorAll(".sidebar ul li").forEach(li => {
     li.onclick = () => {
       document.querySelectorAll(".sidebar ul li").forEach(x => x.classList.remove("active"));
@@ -123,8 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /* ===== MODAL ===== */
-  const modal = document.getElementById("modal");
-
   modalCancel.onclick = () => modal.style.display = "none";
   addIncomeBtn.onclick = () => openModal("income");
   addExpenseBtn.onclick = () => openModal("expense");
@@ -207,12 +266,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCategories() {
-    incomeCategories.innerHTML = "";
-    expenseCategories.innerHTML = "";
+    incomeCategoriesEl.innerHTML = "";
+    expenseCategoriesEl.innerHTML = "";
 
-    categories.incomeCategories.forEach(c => incomeCategories.innerHTML += `<li>${c}</li>`);
+    categories.incomeCategories.forEach(c => incomeCategoriesEl.innerHTML += `<li>${c}</li>`);
     categories.expenseCategories.forEach(c =>
-      expenseCategories.innerHTML += `<li>${c} (Threshold: ${categories.thresholds[c] || 0})</li>`
+      expenseCategoriesEl.innerHTML += `<li>${c} (Threshold: ${categories.thresholds[c] || 0})</li>`
     );
   }
 
@@ -245,10 +304,8 @@ document.addEventListener("DOMContentLoaded", () => {
     balance.innerText = totalInc - totalExp;
   }
 
+  // Show dashboard by default
   showPage("dashboard");
 });
-
-
-
 
 
