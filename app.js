@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxuR9Foo3zfqF3_4i9_TMYG78Md8tivHLuOBWU0pPqWN9m7PJykcm7wxKIY34HHvdrdsQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzVIiQAjDcvvUqEXSqTK00yAn12IUkL0NvdRA3dMOsi1pzZwHCrL0lfad_d5Z3R3p1Yng/exec";
 
 /* ===== API HELPER ===== */
 async function api(action, payload = {}) {
@@ -247,6 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showPage("dashboard");
 });
+
 
 
 
