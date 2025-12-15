@@ -2,7 +2,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxuR9Foo3zfqF3_4i9_TMYG
 
 /* ===== API HELPER ===== */
 async function api(action, payload = {}) {
-  const res = await fetch(API_URL, {
+  const res = await fetch(https://script.google.com/macros/s/AKfycbxuR9Foo3zfqF3_4i9_TMYG78Md8tivHLuOBWU0pPqWN9m7PJykcm7wxKIY34HHvdrdsQ/exec, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, ...payload })
@@ -248,4 +248,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showPage("dashboard");
 });
+
 
